@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casting Silver</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+max-width: 400px;
+margin: 20px auto;
+padding: 10px;
+border: 1px solid #ccc;
+border-radius: 8px;
+}
+label {
+display: block;
+margin-bottom: 8px;
+font-size: 14px;
+}
+input, select {
+width: 100%;
+padding: 6px;
+margin-bottom: 12px;
+box-sizing: border-box;
+font-size: 20px;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+.result {
+margin-bottom: 8px;
+}
+.result span {
+font-size: 1.3em;
+font-weight: bold;
+}
+.task-list {
+margin-top: 12px;
+}
+.task-list ul {
+list-style: none;
+padding: 0;
+}
+.task-list li {
+margin-bottom: 6px;
+font-size: 14px;
+}
+.cycle-buttons {
+margin-bottom: 12px;
+display: flex; /* Use flexbox to center buttons */
+justify-content: center; /* Center buttons horizontally */
+}
+.cycle-buttons button {
+padding: 6px 12px;
+margin-right: 8px;
+border: 1px solid #ccc;
+border-radius: 4px;
+background-color: #f9f9f9;
+cursor: pointer;
+font-size: 14px;
+}
+.cycle-buttons button.active {
+background-color: #007bff;
+color: white;
+border-color: #007bff;
+}
+h1 {
+font-size: 20px;
+margin: 0 0 12px;
+text-align: center;
+}
+h2 {
+font-size: 16px;
+margin: 22px 0 8px;
+text-align: center;
+}
+h3 {
+font-size: 14px;
+margin: 8px 0;
+}
+/* Print-specific styles */
+@media print {
+body {
+max-width: 7.5in; /* 8.5in - 0.5in margins on each side */
+margin: 0.5in;
+padding: 0;
+border: none;
+font-size: 12pt;
+line-height: 1.2;
+}
+h1 {
+font-size: 16pt;
+margin-bottom: 8pt;
+}
+h2 {
+font-size: 14pt;
+margin: 8pt 0;
+}
+h3 {
+font-size: 12pt;
+margin: 6pt 0;
+}
+label, .result, .task-list li, .cycle-buttons button {
+font-size: 12pt;
+}
+input, select {
+display: none; /* Hide inputs for print */
+}
+.cycle-buttons {
+display: none; /* Hide buttons for print */
+}
+.task-list {
+margin-top: 8pt;
+}
+.task-list ul {
+margin: 0;
+padding: 0;
+}
+.task-list li {
+margin-bottom: 4pt;
+}
+.result span {
+font-size: 14pt;
+}
+#taskList {
+page-break-inside: avoid; /* Prevent breaking task list across pages */
+}
+@page {
+size: 8.5in 11in;
+margin: 0.5in;
+}
+}
+</style>
+</head>
+<body>
+<h1>Casting Silver </h1>
+<label for="inputNumber">Total wax weight (grams)</label>
+<input type="number" id="inputNumber" step="0.1" min="0" max="100" value="0">
+<br /><br />
+<h1>You will need</h1>
+<div class="result">
+<span id="first">0.0</span><strong> Reclaimed Sterling Grams</strong>
+</div>
+<div class="result">
+<span id="second">0.0</span><strong> New Argentium Grams</strong>
+</div>
+<div class="result">
+<span id="third">0.0</span><strong> Total Weight in Grams</strong>
+</div>
+<br /><br />
+<h1>Burn Out Schedule</h1>
+<div class="cycle-buttons">
+<button id="cycle5" class="active">5 Hour Cycle</button>
+<button id="cycle6">6 Hour Cycle</button>
+</div>
+<label for="startTime">Start Time</label>
+<input type="time" id="startTime">
+<div class="task-list">
+<h3>Task Schedule</h3>
+<ul id="taskList"></ul>
+</div>
+<script>
+const input = document.getElementById('inputNumber');
+const first = document.getElementById('first');
+const second = document.getElementById('second');
+const third = document.getElementById('third');
+const cycle5Button = document.getElementById('cycle5');
+const cycle6Button = document.getElementById('cycle6');
+const startTime = document.getElementById('startTime');
+const taskList = document.getElementById('taskList');
+
+// Set default time to current time
+const now = new Date();
+startTime.value = now.toTimeString().slice(0, 5);
+let selectedCycle = 5; // Default to 5-hour cycle
+
+// Clear default "0" when user focuses or types
+input.addEventListener('focus', () => {
+    if (input.value === '0') {
+        input.value = '';
+    }
+});
+input.addEventListener('input', updateResults);
+cycle5Button.addEventListener('click', () => setCycle(5));
+cycle6Button.addEventListener('click', () => setCycle(6));
+startTime.addEventListener('input', updateSchedule);
+
+function setCycle(cycle) {
+    selectedCycle = cycle;
+    cycle5Button.classList.toggle('active', cycle === 5);
+    cycle6Button.classList.toggle('active', cycle === 6);
+    updateSchedule();
+}
+
+function updateResults() {
+    const x = parseFloat(input.value) || 0;
+    const a = parseFloat((x * 2.375).toFixed(1));
+    const b = parseFloat((x * 7.125).toFixed(1));
+    const c = (a + b).toFixed(1);
+    first.textContent = a.toFixed(1);
+    second.textContent = b.toFixed(1);
+    third.textContent = c;
+}
+
+function updateSchedule() {
+    const timeValue = startTime.value;
+    const [hours, minutes] = timeValue.split(':').map(Number);
+    const startDate = new Date();
+    startDate.setHours(hours, minutes, 0, 0);
+    const tasks = selectedCycle === 5 ? [
+        { minutes: 0, description: 'Mix and vacuum the investment' },
+        { minutes: 10, description: 'Pour the flask' },
+        { minutes: 120, description: 'Set oven to 400' },
+        { minutes: 130, description: 'Put flask in' },
+        { minutes: 250, description: 'Remove wax pan and set oven to 700' },
+        { minutes: 310, description: 'Set oven to 1350' },
+        { minutes: 370, description: 'Set oven to 900' },
+        { minutes: 430, description: 'Cast' }
+    ] : [
+        { minutes: 0, description: 'Mix and vacuum the investment' },
+        { minutes: 10, description: 'Pour the flask' },
+        { minutes: 120, description: 'Set oven to 400' },
+        { minutes: 130, description: 'Put flask in' },
+        { minutes: 250, description: 'Remove wax pan and set oven to 700' },
+        { minutes: 310, description: 'Set oven to 1350' },
+        { minutes: 430, description: 'Set oven to 900' },
+        { minutes: 490, description: 'Cast' }
+    ];
+    taskList.innerHTML = '';
+    tasks.forEach(task => {
+        const taskTime = new Date(startDate.getTime() + task.minutes * 60000);
+        const timeString = taskTime.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+        const li = document.createElement('li');
+        li.textContent = `${timeString} - ${task.description}`;
+        taskList.appendChild(li);
+    });
+}
+
+// Initial schedule update
+updateSchedule();
+</script>
+</body>
+</html>
